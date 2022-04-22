@@ -1,3 +1,4 @@
+#!/bin/bash
 # dummycamy v2.1
 # Mod by:Amine Boutouil
 
